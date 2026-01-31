@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Council - AI Financial Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Navigation Component
+        const Navigation = ({ currentPage, setCurrentPage }) => {
+            const isActive = (page) => currentPage === page;
+            
+            return (
+                <nav className="bg-white shadow-lg">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between h-16">
+                            <div className="flex items-center">
+                                <button 
+                                    onClick={() => setCurrentPage('landing')}
+                                    className="text-2xl font-bold text-blue-600"
+                                >
+                                    Money Council
+                                </button>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                {['landing', 'auth', 'profile', 'dashboard', 'scenario'].map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                            isActive(page) 
+                                                ? 'bg-blue-600 text-white' 
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        {page.charAt(0).toUpperCase() + page.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+
+        // Landing Page
+        const LandingPage = () => (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                    <div className="text-center">
+                        <h1 className="text-5xl font-bold text-gray-900 mb-6">Money Council</h1>
+                        <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                            Your AI-powered financial advisor that analyzes your income, expenses, and goals 
+                            to provide personalized financial guidance and scenario planning.
+                        </p>
+                        <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+                            <button
+                                onClick={() => window.setCurrentPage('auth')}
+                                className="block w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                            >
+                                Get Started
+                            </button>
+                            <button
+                                onClick={() => window.setCurrentPage('dashboard')}
+                                className="block w-full sm:w-auto bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition duration-200"
+                            >
+                                Try Demo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <div className="text-blue-600 text-3xl mb-4">📊</div>
+                            <h3 className="text-xl font-semibold mb-2">Smart Analysis</h3>
+                            <p className="text-gray-600">
+                                AI-powered analysis of your financial data to identify patterns and opportunities
+                            </p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <div className="text-blue-600 text-3xl mb-4">🎯</div>
+                            <h3 className="text-xl font-semibold mb-2">Goal Planning</h3>
+                            <p className="text-gray-600">
+                                Set and track financial goals with personalized recommendations
+                            </p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <div className="text-blue-600 text-3xl mb-4">🔮</div>
+                            <h3 className="text-xl font-semibold mb-2">Scenario Modeling</h3>
+                            <p className="text-gray-600">
+                                Compare different financial paths and see the impact of your decisions
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // Auth Page
+        const AuthPage = () => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [formData, setFormData] = useState({
+                email: '',
+                password: '',
+                name: '',
+                confirmPassword: ''
+            });
+
+            const handleInputChange = (e) => {
+                setFormData({
+                    ...formData,
+                    [e.target.name]: e.target.value
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+                    <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                        <h2 className="text-center text-3xl font-extrabold text-gray-900">
+                            {isLogin ? 'Sign in to your account' : 'Create your account'}
+                        </h2>
+                        <p className="mt-2 text-center text-sm text-gray-600">
+                            {isLogin ? "Don't have an account? " : "Already have an account? "}
+                            <button
+                                onClick={() => setIsLogin(!isLogin)}
+                                className="font-medium text-blue-600 hover:text-blue-500"
+                            >
+                                {isLogin ? 'Sign up' : 'Sign in'}
+                            </button>
+                        </p>
+                    </div>
+
+                    <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                            <form className="space-y-6">
+                                {!isLogin && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            name="name"
+                                            type="text"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Email address
+                                    </label>
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Password
+                                    </label>
+                                    <input
+                                        name="password"
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => window.setCurrentPage('dashboard')}
+                                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                >
+                                    {isLogin ? 'Sign in' : 'Sign up'}
+                                </button>
+                            </form>
+
+                            <div className="mt-6">
+                                <button
+                                    onClick={() => window.setCurrentPage('dashboard')}
+                                    className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                >
+                                    Skip to Demo Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Profile Page
+        const ProfilePage = () => {
+            const [financialData, setFinancialData] = useState({
+                monthlyIncome: 50000,
+                expenses: {
+                    housing: 15000,
+                    food: 8000,
+                    transportation: 5000,
+                    entertainment: 3000,
+                    utilities: 2000,
+                    other: 2000
+                },
+                debts: {
+                    creditCards: 5000,
+                    studentLoans: 50000,
+                    carLoan: 200000,
+                    other: 0
+                },
+                goals: {
+                    emergencyFund: 100000,
+                    retirement: 1000000,
+                    houseDownPayment: 500000
+                },
+                riskTolerance: 'moderate'
+            });
+
+            const personas = [
+                {
+                    name: '₹20k Student',
+                    data: {
+                        monthlyIncome: 20000,
+                        expenses: { housing: 5000, food: 4000, transportation: 2000, entertainment: 1500, utilities: 1000, other: 500 },
+                        debts: { creditCards: 1000, studentLoans: 100000, carLoan: 0, other: 0 },
+                        goals: { emergencyFund: 30000, retirement: 500000, houseDownPayment: 200000 },
+                        riskTolerance: 'conservative'
+                    }
+                },
+                {
+                    name: '₹50k Salaried',
+                    data: {
+                        monthlyIncome: 50000,
+                        expenses: { housing: 15000, food: 8000, transportation: 5000, entertainment: 3000, utilities: 2000, other: 2000 },
+                        debts: { creditCards: 5000, studentLoans: 50000, carLoan: 200000, other: 0 },
+                        goals: { emergencyFund: 100000, retirement: 1000000, houseDownPayment: 500000 },
+                        riskTolerance: 'moderate'
+                    }
+                },
+                {
+                    name: '₹35k Freelancer',
+                    data: {
+                        monthlyIncome: 35000,
+                        expenses: { housing: 10000, food: 6000, transportation: 4000, entertainment: 2500, utilities: 1500, other: 1000 },
+                        debts: { creditCards: 3000, studentLoans: 0, carLoan: 150000, other: 0 },
+                        goals: { emergencyFund: 75000, retirement: 800000, houseDownPayment: 400000 },
+                        riskTolerance: 'aggressive'
+                    }
+                }
+            ];
+
+            const loadPersona = (persona) => {
+                setFinancialData(persona.data);
+            };
+
+            const totalExpenses = Object.values(financialData.expenses).reduce((sum, val) => sum + val, 0);
+            const monthlySavings = financialData.monthlyIncome - totalExpenses;
+
+            return (
+                <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900">Financial Profile</h1>
+                            <p className="mt-2 text-gray-600">Enter your financial information to get personalized advice</p>
+                        </div>
+
+                        <div className="mb-8 bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Quick Start - Demo Personas</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {personas.map((persona) => (
+                                    <button
+                                        key={persona.name}
+                                        onClick={() => loadPersona(persona)}
+                                        className="p-4 rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-all"
+                                    >
+                                        <div className="font-medium">{persona.name}</div>
+                                        <div className="text-sm text-gray-600 mt-1">Click to load sample data</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <h2 className="text-xl font-semibold mb-4">Income Information</h2>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Monthly Income (₹)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={financialData.monthlyIncome}
+                                        onChange={(e) => setFinancialData({...financialData, monthlyIncome: Number(e.target.value)})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <h2 className="text-xl font-semibold mb-4">Risk Tolerance</h2>
+                                <div className="space-y-2">
+                                    {['conservative', 'moderate', 'aggressive'].map((risk) => (
+                                        <label key={risk} className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                value={risk}
+                                                checked={financialData.riskTolerance === risk}
+                                                onChange={(e) => setFinancialData({...financialData, riskTolerance: e.target.value})}
+                                                className="mr-2"
+                                            />
+                                            <span className="capitalize">{risk}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 bg-blue-50 p-6 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-2">Summary</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <span className="text-gray-600">Monthly Income:</span>
+                                    <span className="ml-2 font-semibold">₹{financialData.monthlyIncome.toLocaleString()}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-600">Monthly Expenses:</span>
+                                    <span className="ml-2 font-semibold">₹{totalExpenses.toLocaleString()}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-600">Monthly Savings:</span>
+                                    <span className={`ml-2 font-semibold ${monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        ₹{monthlySavings.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex justify-center">
+                            <button
+                                onClick={() => window.setCurrentPage('dashboard')}
+                                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                            >
+                                View Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Dashboard Page
+        const DashboardPage = () => {
+            const [showRecommended, setShowRecommended] = useState(false);
+            
+            const monthlyIncome = 50000;
+            const expenses = {
+                housing: 15000,
+                food: 8000,
+                transportation: 5000,
+                entertainment: 3000,
+                utilities: 2000,
+                other: 2000
+            };
+            
+            const debts = {
+                creditCards: 5000,
+                studentLoans: 50000,
+                carLoan: 200000,
+                personalLoan: 0
+            };
+
+            const recommendedExpenses = {
+                housing: 15000,
+                food: 6500,
+                transportation: 4000,
+                entertainment: 2400,
+                utilities: 1800,
+                other: 1800
+            };
+
+            const totalExpenses = Object.values(expenses).reduce((sum, val) => sum + val, 0);
+            const totalDebts = Object.values(debts).reduce((sum, val) => sum + val, 0);
+            const monthlySavings = monthlyIncome - totalExpenses;
+            const savingsRate = ((monthlySavings / monthlyIncome) * 100).toFixed(1);
+
+            const totalRecommendedExpenses = Object.values(recommendedExpenses).reduce((sum, val) => sum + val, 0);
+            const recommendedSavings = monthlyIncome - totalRecommendedExpenses;
+            const recommendedSavingsRate = ((recommendedSavings / monthlyIncome) * 100).toFixed(1);
+
+            const actionPlan = [
+                "Reduce entertainment expenses by 20% to save an additional ₹600/month",
+                "Set up automatic transfer of ₹10,000 to emergency fund",
+                "Consider refinancing car loan to potentially save ₹1,500/month",
+                "Increase retirement contribution by 5% when income increases"
+            ];
+
+            // Chart refs
+            const expenseChartRef = React.useRef(null);
+            const debtChartRef = React.useRef(null);
+            const cashFlowChartRef = React.useRef(null);
+            const recommendedExpenseChartRef = React.useRef(null);
+
+            // Initialize charts
+            React.useEffect(() => {
+                // Expense Pie Chart
+                if (expenseChartRef.current) {
+                    new Chart(expenseChartRef.current, {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(expenses).map(key => key.charAt(0).toUpperCase() + key.slice(1)),
+                            datasets: [{
+                                data: Object.values(expenses),
+                                backgroundColor: [
+                                    '#3B82F6', // blue
+                                    '#10B981', // green
+                                    '#F59E0B', // yellow
+                                    '#EF4444', // red
+                                    '#8B5CF6', // purple
+                                    '#6B7280'  // gray
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Current Expense Breakdown'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Debt Pie Chart
+                if (debtChartRef.current) {
+                    new Chart(debtChartRef.current, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(debts).filter(key => debts[key] > 0).map(key => key.charAt(0).toUpperCase() + key.replace(/([A-Z])/g, ' $1').trim()),
+                            datasets: [{
+                                data: Object.values(debts).filter(val => val > 0),
+                                backgroundColor: [
+                                    '#DC2626', // red
+                                    '#F59E0B', // yellow
+                                    '#3B82F6', // blue
+                                    '#10B981'  // green
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Debt Distribution'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Cash Flow Bar Chart
+                if (cashFlowChartRef.current) {
+                    new Chart(cashFlowChartRef.current, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Income', 'Expenses', 'Savings'],
+                            datasets: [{
+                                label: 'Monthly Cash Flow',
+                                data: [monthlyIncome, -totalExpenses, monthlySavings],
+                                backgroundColor: [
+                                    '#10B981', // green for income
+                                    '#EF4444', // red for expenses
+                                    '#3B82F6'  // blue for savings
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '₹' + Math.abs(value).toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Monthly Cash Flow Analysis'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Recommended Expense Chart (shown when recommended is displayed)
+                if (showRecommended && recommendedExpenseChartRef.current) {
+                    new Chart(recommendedExpenseChartRef.current, {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(recommendedExpenses).map(key => key.charAt(0).toUpperCase() + key.slice(1)),
+                            datasets: [{
+                                data: Object.values(recommendedExpenses),
+                                backgroundColor: [
+                                    '#3B82F6', // blue
+                                    '#10B981', // green
+                                    '#F59E0B', // yellow
+                                    '#EF4444', // red
+                                    '#8B5CF6', // purple
+                                    '#6B7280'  // gray
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Recommended Expense Breakdown'
+                                }
+                            }
+                        }
+                    });
+                }
+            }, [showRecommended]);
+
+            return (
+                <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900">Financial Dashboard</h1>
+                            <p className="mt-2 text-gray-600">Your personalized financial insights and recommendations</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0 bg-green-100 rounded-full p-3">
+                                        <div className="text-green-600 text-xl">💰</div>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="text-sm font-medium text-gray-600">Monthly Income</p>
+                                        <p className="text-2xl font-bold text-gray-900">₹{monthlyIncome.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0 bg-red-100 rounded-full p-3">
+                                        <div className="text-red-600 text-xl">💳</div>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="text-sm font-medium text-gray-600">Monthly Expenses</p>
+                                        <p className="text-2xl font-bold text-gray-900">₹{totalExpenses.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0 bg-blue-100 rounded-full p-3">
+                                        <div className="text-blue-600 text-xl">📈</div>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="text-sm font-medium text-gray-600">Monthly Savings</p>
+                                        <p className={`text-2xl font-bold ${monthlySavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            ₹{monthlySavings.toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <div className="flex items-center">
+                                    <div className="flex-shrink-0 bg-purple-100 rounded-full p-3">
+                                        <div className="text-purple-600 text-xl">📊</div>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="text-sm font-medium text-gray-600">Total Debt</p>
+                                        <p className="text-2xl font-bold text-gray-900">₹{totalDebts.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Charts Section */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <canvas ref={expenseChartRef} width="400" height="300"></canvas>
+                            </div>
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <canvas ref={debtChartRef} width="400" height="300"></canvas>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow mb-8">
+                            <canvas ref={cashFlowChartRef} width="800" height="300"></canvas>
+                        </div>
+
+                        {/* Recommended Plan Section */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-blue-800">AI-Recommended Financial Plan</h2>
+                                <button
+                                    onClick={() => setShowRecommended(!showRecommended)}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                >
+                                    {showRecommended ? 'Hide' : 'Show'} Recommendations
+                                </button>
+                            </div>
+                            
+                            {showRecommended && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-white p-4 rounded-lg">
+                                            <h3 className="font-semibold text-gray-900 mb-2">Current vs Recommended</h3>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span>Current Savings Rate:</span>
+                                                    <span className="font-semibold">{savingsRate}%</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Recommended Savings Rate:</span>
+                                                    <span className="font-semibold text-green-600">{recommendedSavingsRate}%</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Additional Monthly Savings:</span>
+                                                    <span className="font-semibold text-green-600">₹{(recommendedSavings - monthlySavings).toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white p-4 rounded-lg">
+                                            <h3 className="font-semibold text-gray-900 mb-2">Annual Impact</h3>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span>Current Annual Savings:</span>
+                                                    <span className="font-semibold">₹{(monthlySavings * 12).toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Recommended Annual Savings:</span>
+                                                    <span className="font-semibold text-green-600">₹{(recommendedSavings * 12).toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Extra Annual Savings:</span>
+                                                    <span className="font-semibold text-green-600">₹{((recommendedSavings - monthlySavings) * 12).toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg shadow">
+                                        <canvas ref={recommendedExpenseChartRef} width="400" height="300"></canvas>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow mb-8">
+                            <h2 className="text-xl font-semibold mb-4">This Month's Action Plan</h2>
+                            <div className="space-y-3">
+                                {actionPlan.map((action, index) => (
+                                    <div key={index} className="flex items-start">
+                                        <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                            <span className="text-blue-600 text-xs font-semibold">{index + 1}</span>
+                                        </div>
+                                        <p className="text-gray-700">{action}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center space-x-4">
+                            <button
+                                onClick={() => window.setCurrentPage('profile')}
+                                className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition duration-200"
+                            >
+                                Update Profile
+                            </button>
+                            <button
+                                onClick={() => window.setCurrentPage('scenario')}
+                                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                            >
+                                View Scenarios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Scenario Page
+        const ScenarioPage = () => {
+            const [userInput, setUserInput] = useState({
+                monthlyIncome: 50000,
+                currentExpenses: {
+                    housing: 15000,
+                    food: 8000,
+                    transportation: 5000,
+                    entertainment: 3000,
+                    utilities: 2000,
+                    other: 2000
+                },
+                optimizationGoals: {
+                    housing: 0,
+                    food: 15,
+                    transportation: 20,
+                    entertainment: 20,
+                    utilities: 10,
+                    other: 10
+                }
+            });
+
+            const [showResults, setShowResults] = useState(false);
+
+            const handleInputChange = (field, value) => {
+                setUserInput(prev => ({
+                    ...prev,
+                    [field]: Number(value)
+                }));
+            };
+
+            const handleExpenseChange = (category, value) => {
+                setUserInput(prev => ({
+                    ...prev,
+                    currentExpenses: {
+                        ...prev.currentExpenses,
+                        [category]: Number(value)
+                    }
+                }));
+            };
+
+            const handleOptimizationChange = (category, value) => {
+                setUserInput(prev => ({
+                    ...prev,
+                    optimizationGoals: {
+                        ...prev.optimizationGoals,
+                        [category]: Number(value)
+                    }
+                }));
+            };
+
+            const calculateScenarios = () => {
+                setShowResults(true);
+            };
+
+            const currentTotalExpenses = Object.values(userInput.currentExpenses).reduce((sum, val) => sum + val, 0);
+            const currentSavings = userInput.monthlyIncome - currentTotalExpenses;
+
+            const optimizedExpenses = {};
+            const improvements = [];
+
+            Object.entries(userInput.currentExpenses).forEach(([category, current]) => {
+                const reductionPercent = userInput.optimizationGoals[category] / 100;
+                const optimized = Math.round(current * (1 - reductionPercent));
+                const savings = current - optimized;
+                
+                optimizedExpenses[category] = optimized;
+                improvements.push({
+                    category: category.charAt(0).toUpperCase() + category.slice(1),
+                    current,
+                    optimized,
+                    savings
+                });
+            });
+
+            const optimizedTotalExpenses = Object.values(optimizedExpenses).reduce((sum, val) => sum + val, 0);
+            const optimizedSavings = userInput.monthlyIncome - optimizedTotalExpenses;
+            const totalMonthlySavings = improvements.reduce((sum, item) => sum + item.savings, 0);
+
+            const currentPath = {
+                monthlyIncome: userInput.monthlyIncome,
+                expenses: currentTotalExpenses,
+                savings: currentSavings,
+                netWorth3Months: currentSavings * 3
+            };
+
+            const optimizedPath = {
+                monthlyIncome: userInput.monthlyIncome,
+                expenses: optimizedTotalExpenses,
+                savings: optimizedSavings,
+                netWorth3Months: optimizedSavings * 3
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900">Scenario Comparison</h1>
+                            <p className="mt-2 text-gray-600">Input your financial data to compare current vs optimized scenarios</p>
+                        </div>
+
+                        {!showResults ? (
+                            <div className="space-y-8">
+                                <div className="bg-white p-6 rounded-lg shadow">
+                                    <h2 className="text-xl font-semibold mb-4">Income Information</h2>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Monthly Income (₹)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={userInput.monthlyIncome}
+                                            onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-lg shadow">
+                                    <h2 className="text-xl font-semibold mb-4">Current Monthly Expenses</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {Object.entries(userInput.currentExpenses).map(([category, value]) => (
+                                            <div key={category}>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+                                                    {category} (₹)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={value}
+                                                    onChange={(e) => handleExpenseChange(category, e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-lg shadow">
+                                    <h2 className="text-xl font-semibold mb-4">Optimization Goals (%)</h2>
+                                    <p className="text-sm text-gray-600 mb-4">How much would you like to reduce each expense category?</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {Object.entries(userInput.optimizationGoals).map(([category, value]) => (
+                                            <div key={category}>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+                                                    {category} Reduction ({value}%)
+                                                </label>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="50"
+                                                    value={value}
+                                                    onChange={(e) => handleOptimizationChange(category, e.target.value)}
+                                                    className="w-full"
+                                                />
+                                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                                    <span>0%</span>
+                                                    <span>{value}%</span>
+                                                    <span>50%</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center">
+                                    <button
+                                        onClick={calculateScenarios}
+                                        className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                                    >
+                                        Calculate Scenarios
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-8">
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <div className="text-green-600 text-2xl mr-4">✨</div>
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-green-800">Potential Monthly Savings: ₹{totalMonthlySavings.toLocaleString()}</h3>
+                                                <p className="text-green-700">Additional ₹{(totalMonthlySavings * 12).toLocaleString()} annually</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowResults(false)}
+                                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                        >
+                                            Edit Inputs
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                                    <div className="bg-white p-6 rounded-lg shadow">
+                                        <h2 className="text-xl font-semibold mb-4">Current Path</h2>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between">
+                                                <span>Monthly Income:</span>
+                                                <span className="font-semibold">₹{currentPath.monthlyIncome.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Monthly Expenses:</span>
+                                                <span className="font-semibold text-red-600">-₹{currentPath.expenses.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Monthly Savings:</span>
+                                                <span className="font-semibold text-green-600">₹{currentPath.savings.toLocaleString()}</span>
+                                            </div>
+                                            <div className="border-t pt-3">
+                                                <div className="flex justify-between">
+                                                    <span className="font-medium">3-Month Net Worth:</span>
+                                                    <span className="font-bold text-lg">₹{currentPath.netWorth3Months.toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-lg shadow border-2 border-green-500">
+                                        <h2 className="text-xl font-semibold mb-4">Optimized Path</h2>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between">
+                                                <span>Monthly Income:</span>
+                                                <span className="font-semibold">₹{optimizedPath.monthlyIncome.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Monthly Expenses:</span>
+                                                <span className="font-semibold text-green-600">-₹{optimizedPath.expenses.toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Monthly Savings:</span>
+                                                <span className="font-semibold text-green-600">₹{optimizedPath.savings.toLocaleString()}</span>
+                                            </div>
+                                            <div className="border-t pt-3">
+                                                <div className="flex justify-between">
+                                                    <span className="font-medium">3-Month Net Worth:</span>
+                                                    <span className="font-bold text-lg text-green-600">₹{optimizedPath.netWorth3Months.toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-lg shadow mb-8">
+                                    <h2 className="text-xl font-semibold mb-4">Optimization Breakdown</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Category</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Current</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Optimized</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Savings</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {improvements.map((item, index) => (
+                                                    <tr key={index} className="border-t">
+                                                        <td className="px-4 py-2 text-sm font-medium">{item.category}</td>
+                                                        <td className="px-4 py-2 text-sm">₹{item.current.toLocaleString()}</td>
+                                                        <td className="px-4 py-2 text-sm text-green-600">₹{item.optimized.toLocaleString()}</td>
+                                                        <td className="px-4 py-2 text-sm text-green-600 font-semibold">₹{item.savings.toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                                <tr className="bg-gray-50 font-semibold">
+                                                    <td className="px-4 py-2 text-sm">Total</td>
+                                                    <td className="px-4 py-2 text-sm">-</td>
+                                                    <td className="px-4 py-2 text-sm">-</td>
+                                                    <td className="px-4 py-2 text-sm text-green-600">₹{totalMonthlySavings.toLocaleString()}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center space-x-4">
+                                    <button
+                                        onClick={() => window.setCurrentPage('dashboard')}
+                                        className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700"
+                                    >
+                                        Back to Dashboard
+                                    </button>
+                                    <button
+                                        onClick={() => window.setCurrentPage('profile')}
+                                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+                                    >
+                                        Update Strategy
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [currentPage, setCurrentPage] = useState('landing');
+            
+            // Make setCurrentPage globally available
+            window.setCurrentPage = setCurrentPage;
+
+            const renderPage = () => {
+                switch(currentPage) {
+                    case 'landing': return <LandingPage />;
+                    case 'auth': return <AuthPage />;
+                    case 'profile': return <ProfilePage />;
+                    case 'dashboard': return <DashboardPage />;
+                    case 'scenario': return <ScenarioPage />;
+                    default: return <LandingPage />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
+                    {renderPage()}
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
